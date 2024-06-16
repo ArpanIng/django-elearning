@@ -51,3 +51,59 @@ class UserChangeForm(forms.ModelForm):
             "is_staff",
             "is_superuser",
         ]
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    """
+    A custom authentication form to log in users with their email address.
+    This form extends Django's built-in AuthenticationForm to use the
+    email field for authentication instead of the default username field.
+    """
+
+    username = forms.CharField(
+        label=get_user_model().USERNAME_FIELD.capitalize(),
+        widget=forms.TextInput(attrs={"autofocus": True}),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["username"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Enter email"},
+        )
+        self.fields["password"].widget.attrs.update(
+            {"class": "form-control", "placeholder": "Enter password"},
+        )
+
+
+class RegistrationForm(UserCreationForm):
+    """
+    A Django ModelForm for user registration.
+    """
+
+    class Meta:
+        model = get_user_model()
+        fields = (
+            "first_name",
+            "last_name",
+            "username",
+            "email",
+            "password1",
+            "password2",
+        )
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("label_suffix", "")  # sets the label_suffix to none
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+        attrs = {"class": "form-control"}
+        placeholders = {
+            "first_name": "Enter First Name",
+            "last_name": "Enter Last Name",
+            "username": "Enter Username",
+            "email": "Enter Email",
+            "password1": "Enter Password",
+            "password2": "Confirm Password",
+        }
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update(attrs)
+            if field_name in placeholders:
+                field.widget.attrs["placeholder"] = placeholders[field_name]

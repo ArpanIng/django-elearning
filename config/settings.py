@@ -31,6 +31,8 @@ INSTALLED_APPS = [
     # third-party packages
     "debug_toolbar",
     "django_extensions",
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
 
 MIDDLEWARE = [
@@ -132,3 +134,25 @@ AUTH_USER_MODEL = "accounts.CustomUser"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# django flash messages configuration
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.DEBUG: "alert-secondary",
+    messages.INFO: "alert-info",
+    messages.SUCCESS: "alert-success",
+    messages.WARNING: "alert-warning",
+    messages.ERROR: "alert-danger",
+}
+
+# crispy_forms configuration
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+LOGIN_URL = "accounts:login"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
+# SMTP configuration
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
