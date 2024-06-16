@@ -125,6 +125,9 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Custom user configuration
+AUTH_USER_MODEL = "accounts.CustomUser"
+
 # django-debug-toolbar configuration
 INTERNAL_IPS = [
     "127.0.0.1",
