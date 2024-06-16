@@ -49,19 +49,6 @@ class Category(models.Model):
         return Category.objects.filter(parent__isnull=True).prefetch_related("children")
 
 
-class Language(models.Model):
-    """Model representing a language for a course."""
-
-    name = models.CharField(
-        max_length=50,
-        unique=True,
-        help_text="The full name of the language, e.g., 'English'.",
-    )
-
-    def __str__(self):
-        return self.name
-
-
 class PublishedManager(models.Manager):
     """
     Custom Manager
@@ -140,7 +127,6 @@ class Course(models.Model):
         on_delete=models.CASCADE,
         related_name="courses",
     )
-    language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True)
     publish = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     objects = models.Manager()  # default Manager
@@ -170,6 +156,11 @@ class Course(models.Model):
 
     @property
     def get_discount_percentage(self):
+        # if self.has_discount():
+        #     discount_percentage = round((self.regular_price - self.discount_price) / self.regular_price) * 100
+        #     return discount_percentage
+        # return 0  # Return 0 when the regular_price is 0 to avoid division by zero error
+    
         if self.has_discount():
             discount_percentage = round(
                 ((self.regular_price - self.discount_price) / self.regular_price) * 100

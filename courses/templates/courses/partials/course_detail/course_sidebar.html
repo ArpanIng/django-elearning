@@ -13,11 +13,22 @@
 
     <div class="pt-5 pb-4 px-5 px-lg-3 px-xl-5">
         <div class="d-flex align-items-center mb-2">
-            <ins class="h2 mb-0">$89.99</ins>
-            <del class="ms-3">339.99</del>
-            <div class="badge badge-lg badge-purple text-white ms-auto fw-normal">91% Off</div>
+            {% if course.is_free %}
+            <span class="badge badge-lg badge-danger bottom-0 left-0">
+                <span class="text-white text-uppercase fw-bold font-size-xs">FREE</span>
+            </span>
+            {% else %}
+                {% if course.has_discount %}
+                <ins class="h2 mb-0">${{ course.discount_price }}</ins>
+                <del class="ms-3">{{ course.regular_price }}</del>
+                <div class="badge badge-lg badge-purple text-white ms-auto fw-normal">{{ course.get_discount_percentage }}% Off</div>
+                {% else %}
+                <ins class="h2 mb-0">${{ course.regular_price }}</ins>
+                {% endif %}
+            {% endif %}
         </div>
 
+        {% if course.has_discount %}
         <div class="d-flex align-items-center text-alizarin mb-6">
             <!-- Icon -->
             <svg width="20" height="20" viewBox="0 0 20 20">
@@ -25,6 +36,7 @@
             </svg>
             <span class="ms-2">2 days left at this price!</span>
         </div>
+        {% endif %}
 
         <button class="btn btn-primary btn-block mb-3" type="button" name="button">BUY NOW</button>
         <button class="btn btn-orange btn-block mb-6" type="button" name="button">ENROLL</button>
@@ -56,22 +68,11 @@
                 <div class="text-secondary d-flex icon-uxs">
                     <!-- Icon -->
                     <svg width="16" height="16" viewBox="0 0 16 16">
-                        <use xlink:href="{% static 'courses/img/svgs/translate.svg' %}#translate" />
-                    </svg>
-                </div>
-                <h6 class="mb-0 ms-3 me-auto">Language</h6>
-                <span>English</span>
-            </li>
-
-            <li class="list-group-item d-flex align-items-center py-3">
-                <div class="text-secondary d-flex icon-uxs">
-                    <!-- Icon -->
-                    <svg width="16" height="16" viewBox="0 0 16 16">
                         <use xlink:href="{% static 'courses/img/svgs/equalizer.svg' %}#equalizer" />
                     </svg>
                 </div>
                 <h6 class="mb-0 ms-3 me-auto">Skill level</h6>
-                <span>beginner</span>
+                <span>{{ course.get_level_display }}</span>
             </li>
 
             <li class="list-group-item d-flex align-items-center py-3">
@@ -82,7 +83,7 @@
                     </svg>
                 </div>
                 <h6 class="mb-0 ms-3 me-auto">Certificate</h6>
-                <span>Yes</span>
+                <span>{% if course.certificate %}Yes{% else %}No{% endif %}</span>
             </li>
             
             <li class="list-group-item d-flex align-items-center py-4">

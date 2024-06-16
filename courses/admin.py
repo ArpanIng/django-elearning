@@ -6,7 +6,6 @@ from .models import (
     Course,
     CourseRequirement,
     Enrollment,
-    Language,
     Lesson,
     Module,
     WhatYoullLearn,
@@ -123,7 +122,7 @@ class CourseAdmin(admin.ModelAdmin):
     ]
     search_fields = ["title"]
     prepopulated_fields = {"slug": ("title",)}
-    raw_id_fields = ["instructor"]
+    # raw_id_fields = ["instructor"]
     date_hierarchy = "publish"
     ordering = ["status", "-publish"]
     inlines = [CourseRequirementInline, CourseWhatYoullLearnInline, ModuleInline]
@@ -144,5 +143,4 @@ class LessionAdmin(admin.ModelAdmin):
     list_display = ["title"]
 
 
-admin.site.register(Language)
 admin.site.register(Enrollment)

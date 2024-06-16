@@ -1,43 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- PAGE TITLE -->
-<header class="py-8 py-md-11" style="background-image: none;">
-    <div class="container text-center py-xl-2">
-        <h1 class="display-4 fw-semi-bold mb-0">Courses List</h1>
+{% if not query %}
+<!-- Page breadcrumb navigation -->
+<header class="py-8 py-md-8" style="background-image: none">
+    <div class="container py-xl-2">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb breadcrumb-scroll justify-content-center">
+            <ol class="breadcrumb breadcrumb-scroll justify-content">
+                {% for parent_category in category %}
                 <li class="breadcrumb-item">
-                    <a class="text-gray-800" href="#">
-                        Home
+                    <a href="{{ parent_category.get_category_url }}" class="text-gray-800{% if not subcategory %}-active{% endif %}">
+                        {{ parent_category.title|title }}
                     </a>
                 </li>
-                <li class="breadcrumb-item text-gray-800 active" aria-current="page">
-                    Courses List
-                </li>
+                {% if parent_category.children.exists %}
+                    {% for sub_category in parent_category.children.all %}
+                        <li class="breadcrumb-item">
+                            <a href="{{ sub_category.get_subcategory_url }}" class="text-gray-800">{{ sub_category.title|title }}</a>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+                {% endfor %}
             </ol>
         </nav>
+        <h1 class="display-4 fw-semi-bold mb-0">{{ title|title }} Courses</h1>
     </div>
 </header>
+{% endif %}
 
 
-<!-- CONTROL BAR -->
-<div class="container mb-6 mb-xl-8 z-index-2">
+<!-- control bar -->
+<div class="container {% if query %}mt-8{% else %}mb-6{% endif %} mb-xl-8 z-index-2">
     <div class="d-lg-flex align-items-center mb-6 mb-xl-0">
-        <p class="mb-lg-0">We found <span class="text-dark">834 courses</span> available for you</p>
-        <div class="ms-lg-auto d-lg-flex flex-wrap">
-            <div class="mb-4 mb-lg-0 ms-lg-6">
-                <div class="border rounded d-flex align-items-center choices-label h-50p">
-                    <span class="ps-5">Sort by:</span>
-                    <select class="form-select form-select-sm text-dark border-0 ps-1 bg-transparent flex-grow-1 shadow-none dropdown-menu-end" data-choices>
-                        <option>Default</option>
-                        <option>New Courses</option>
-                        <option>Price Low to High</option>
-                        <option>Price High to low</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+        {% comment %} <p class="mb-lg-0">We found <span class="text-dark">834 courses</span> available for you</p> {% endcomment %}
+        {% if query %}
+        <p class="mb-lg-0 fs-5 fw-semibold">
+            {{ results_count }} result{{ results_count|pluralize }} for <span class="text-gigas">{{ query }}</span>
+          </p>
+        {% else %}
+        <p class="mb-lg-0">
+            We found
+            <span class="text-dark">{{ results_count }} course{{ results_count|pluralize }}</span>
+            available for you
+        </p>
+        {% endif %}
+        {% include 'courses/partials/course_list/course_control_bar.html' %}
     </div>
 </div>
 
@@ -52,7 +59,13 @@
 
         <div class="col-xl-8">
             <!-- Course Card -->
+            {% for course in courses %}
             {% include 'courses/partials/course_list/course_card.html' %}
+            {% empty %}
+            <div class="display-4">
+                No course available.
+            </div>
+            {% endfor %}
             <!-- Course Card End -->
 
             <!-- PAGINATION -->

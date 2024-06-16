@@ -11,22 +11,9 @@
         <!-- Vertical Menu -->
         {% include 'partials/navigation/category_menu.html' %}
 
-        <!-- Search -->
-        <form class="d-none d-wd-flex ms-5 w-xl-450p">
-            <div class="input-group border rounded">
-                <div class="input-group-prepend">
-                    <button class="btn btn-sm my-2 my-sm-0 text-secondary icon-xs d-flex align-items-center" type="submit">
-                        <!-- Icon -->
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M8.80758 0C3.95121 0 0 3.95121 0 8.80758C0 13.6642 3.95121 17.6152 8.80758 17.6152C13.6642 17.6152 17.6152 13.6642 17.6152 8.80758C17.6152 3.95121 13.6642 0 8.80758 0ZM8.80758 15.9892C4.8477 15.9892 1.62602 12.7675 1.62602 8.80762C1.62602 4.84773 4.8477 1.62602 8.80758 1.62602C12.7675 1.62602 15.9891 4.8477 15.9891 8.80758C15.9891 12.7675 12.7675 15.9892 8.80758 15.9892Z" fill="currentColor"/>
-                            <path d="M19.762 18.6121L15.1007 13.9509C14.7831 13.6332 14.2687 13.6332 13.9511 13.9509C13.6335 14.2682 13.6335 14.7831 13.9511 15.1005L18.6124 19.7617C18.7712 19.9205 18.9791 19.9999 19.1872 19.9999C19.395 19.9999 19.6032 19.9205 19.762 19.7617C20.0796 19.4444 20.0796 18.9295 19.762 18.6121Z" fill="currentColor"/>
-                        </svg>
-
-                    </button>
-                </div>
-                <input class="form-control form-control-sm border-0 ps-0" type="search" placeholder="What do you want to learn ?" aria-label="Search">
-            </div>
-        </form>
+        <!-- Search form -->
+        {% include 'partials/form/search_form.html' %}
+        <!-- Search form end -->
 
         <!-- Collapse -->
         <div class="collapse navbar-collapse z-index-lg" id="navbarCollapse">
@@ -67,21 +54,7 @@
                 <div class="collapse position-absolute right-0 left-0" id="collapseSearchMobile">
                     <div class="card card-body p-4 mt-7 shadow-dark">
                         <!-- Search -->
-                        <form class="w-100">
-                            <div class="input-group border rounded">
-                                <div class="input-group-prepend">
-                                    <button class="btn btn-sm text-secondary icon-xs d-flex align-items-center" type="submit">
-                                        <!-- Icon -->
-                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8.80758 0C3.95121 0 0 3.95121 0 8.80758C0 13.6642 3.95121 17.6152 8.80758 17.6152C13.6642 17.6152 17.6152 13.6642 17.6152 8.80758C17.6152 3.95121 13.6642 0 8.80758 0ZM8.80758 15.9892C4.8477 15.9892 1.62602 12.7675 1.62602 8.80762C1.62602 4.84773 4.8477 1.62602 8.80758 1.62602C12.7675 1.62602 15.9891 4.8477 15.9891 8.80758C15.9891 12.7675 12.7675 15.9892 8.80758 15.9892Z" fill="currentColor"/>
-                                            <path d="M19.762 18.6121L15.1007 13.9509C14.7831 13.6332 14.2687 13.6332 13.9511 13.9509C13.6335 14.2682 13.6335 14.7831 13.9511 15.1005L18.6124 19.7617C18.7712 19.9205 18.9791 19.9999 19.1872 19.9999C19.395 19.9999 19.6032 19.9205 19.762 19.7617C20.0796 19.4444 20.0796 18.9295 19.762 18.6121Z" fill="currentColor"/>
-                                        </svg>
-
-                                    </button>
-                                </div>
-                                <input class="form-control form-control-sm border-0 ps-0" type="search" placeholder="What do you want to learn ?" aria-label="Search">
-                            </div>
-                        </form>
+                        {% include 'partials/form/search_form_mobile.html' %}
                     </div>
                 </div>
             </li>

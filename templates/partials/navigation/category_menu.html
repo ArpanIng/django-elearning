@@ -1,6 +1,6 @@
 <ul class="navbar-nav navbar-vertical ms-xl-4 d-none d-xl-flex">
     <li class="nav-item dropdown">
-        <a class="nav-link pb-4 mb-n4 px-0 pt-0" id="navbarVerticalMenu" data-bs-toggle="dropdown" href="#" aria-haspopup="true" aria-expanded="false">
+        <a class="nav-link pb-4 mb-n4 px-0 pt-0" id="navbarVerticalMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <div class="bg-primary rounded py-3 px-5 d-flex align-items-center">
                 <div class="me-3 ms-1 d-flex text-white">
                     <!-- Icon -->
@@ -9,44 +9,31 @@
                         <rect y="8" width="15" height="1" fill="currentColor"/>
                         <rect y="16" width="20" height="1" fill="currentColor"/>
                     </svg>
-
                 </div>
-                <span class="text-white fw-medium me-1">Courses</span>
+                <span class="text-white fw-medium me-1">Categories</span>
             </div>
         </a>
 
+        {% if categories %}
         <ul class="dropdown-menu dropdown-menu-md bg-primary rounded py-4 mt-4" aria-labelledby="navbarVerticalMenu">
+            {% for category in categories %}
             <li class="dropdown-item dropright">
-                <a class="dropdown-link dropdown-toggle" data-bs-toggle="dropdown" href="#">
-                    Design
+                <a href="{{ category.get_category_url }}" class="dropdown-link dropdown-toggle">
+                    {{ category.title|title }}
                 </a>
 
                 <div class="dropdown-menu ps-3 top-0 pe-0 py-0 shadow-none bg-transparent">
+                    {% if category.children.exists %}
                     <div class="dropdown-menu-md bg-primary rounded dropdown-menu-inner">
-                        <a class="dropdown-item" href="course-single-v1.html">
-                            All Business
-                        </a>
-                        <a class="dropdown-item" href="course-single-v2.html">
-                            Finance
-                        </a>
-                        <a class="dropdown-item" href="course-single-v3.html">
-                            Entrepreneurship
-                        </a>
-                        <a class="dropdown-item" href="course-single-v4.html">
-                            Communications
-                        </a>
-                        <a class="dropdown-item" href="course-single-v5.html">
-                            Management
-                        </a>
-                        <a class="dropdown-item" href="course-single-v1.html">
-                            Sales
-                        </a>
-                        <a class="dropdown-item" href="course-single-v2.html">
-                            Operations
-                        </a>
+                        {% for subcategory in category.children.all %}
+                        <a href="{{ subcategory.get_subcategory_url }}" class="dropdown-item">{{ subcategory.title|title }}</a>
+                        {% endfor %}
                     </div>
+                    {% endif %}
                 </div>
             </li>
+            {% endfor %}
         </ul>
+        {% endif %}
     </li>
 </ul>

@@ -17,19 +17,17 @@
 <div class="container">
     <div class="row mb-8">
         <div class="col-lg-8 mb-6 mb-lg-0 position-relative">
-            <h1 class="me-7 me-xl-14">
-                Learn Figma: User Interface Design Essentials - UI/UX Design
-            </h1>
-            <p class="me-xl-13 mb-5">Master Figma app to get a job in UI Design, User Interface, User Experience design, Web Design & UX design.</p>
+            <h1 class="me-7 me-xl-14">{{ course.title }}</h1>
+            <p class="me-xl-13 mb-5">{{ course.summary }}</p>
 
             <!-- COURSE META -->
             <div class="d-md-flex align-items-center mb-5">
                 <div class="mb-4 mb-md-0 me-md-8 me-lg-4 me-xl-8">
-                    Created by <a href="#" class="font-size-sm text-gray-800">Alison Dawn</a>
+                    Created by <a href="#" class="font-size-sm text-gigas-800">{{ course.instructor.get_full_name }}</a>
                 </div>
 
                 <div class="mb-4 mb-md-0 me-md-8 me-lg-4 me-xl-8">
-                    Last Updated<span href="#" class="font-size-sm text-gray-800">2020</span>
+                    Last Updated <span class="font-size-sm text-gray-800">{{ course.updated|date:'M d, Y' }}</span>
                 </div>
 
                 <div class="mb-4 mb-md-0 me-md-6 me-lg-4 me-xl-6">
