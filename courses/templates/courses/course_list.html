@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- PAGE TITLE -->
+<header class="py-8 py-md-11" style="background-image: none;">
+    <div class="container text-center py-xl-2">
+        <h1 class="display-4 fw-semi-bold mb-0">Courses List</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-scroll justify-content-center">
+                <li class="breadcrumb-item">
+                    <a class="text-gray-800" href="#">
+                        Home
+                    </a>
+                </li>
+                <li class="breadcrumb-item text-gray-800 active" aria-current="page">
+                    Courses List
+                </li>
+            </ol>
+        </nav>
+    </div>
+</header>
+
+
+<!-- CONTROL BAR -->
+<div class="container mb-6 mb-xl-8 z-index-2">
+    <div class="d-lg-flex align-items-center mb-6 mb-xl-0">
+        <p class="mb-lg-0">We found <span class="text-dark">834 courses</span> available for you</p>
+        <div class="ms-lg-auto d-lg-flex flex-wrap">
+            <div class="mb-4 mb-lg-0 ms-lg-6">
+                <div class="border rounded d-flex align-items-center choices-label h-50p">
+                    <span class="ps-5">Sort by:</span>
+                    <select class="form-select form-select-sm text-dark border-0 ps-1 bg-transparent flex-grow-1 shadow-none dropdown-menu-end" data-choices>
+                        <option>Default</option>
+                        <option>New Courses</option>
+                        <option>Price Low to High</option>
+                        <option>Price High to low</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- COURSE -->
+<div class="container">
+    <div class="row">
+        <div class="col-xl-4 mb-5 mb-xl-0">
+            <!-- Course Sidebar Filter -->
+            {% include 'courses/partials/course_list/course_filter.html' %}
+            <!-- Course Sidebar Filter End -->
+        </div>
+
+        <div class="col-xl-8">
+            <!-- Course Card -->
+            {% include 'courses/partials/course_list/course_card.html' %}
+            <!-- Course Card End -->
+
+            <!-- PAGINATION -->
+            <nav class="mt-8 mb-11" aria-label="Page navigationa">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true"><i class="fas fa-arrow-left"></i></span>
+                        </a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true"><i class="fas fa-arrow-right"></i></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+        </div>
+    </div>
+</div>
+{% endblock content %}
