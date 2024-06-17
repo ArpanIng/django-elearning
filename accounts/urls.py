@@ -40,3 +40,8 @@ urlpatterns = [
         name="password_reset_complete",
     ),
 ]
+
+
+urlpatterns += [
+    path("dashboard/", views.DashboardView.as_view(), name="dashboard"),
+]

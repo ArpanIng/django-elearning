@@ -1,9 +1,13 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth import views as auth_views
+from django.db.models import Count
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
+from django.views.generic.list import ListView
+
+from courses.models import Course
 
 from .forms import CustomAuthenticationForm, RegistrationForm
 
@@ -67,3 +71,25 @@ class CustomPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = "accounts/auth/password_reset_complete.html"
+
+
+class DashboardView(ListView):
+    """
+    Display a dashboard of courses for a request user.
+    Courses are displayed regardless of its status.
+    """
+
+    model = Course
+    context_object_name = "courses"
+    template_name = "accounts/dashboard.html"
+
+    def get_queryset(self):
+        return Course.objects.filter(instructor=self.request.user).order_by("-publish")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        courses_count = self.get_queryset().aggregate(total_courses=Count("id"))["total_courses"]
+        context["courses_count"] = courses_count
+        return context
+    
+    

@@ -1,17 +1,11 @@
 {% extends "accounts/base_auth.html" %}
+{% load crispy_forms_tags %}
 
 {% block auth_content %}
 <h3 class="mb-6">Sign Up and Start Learning!</h3>
 <form action="" method="post" class="mb-5" novalidate>
     {% csrf_token %}
-    {% for field in form %}
-    <div class="form__group mb-5">
-        <label>{{ field.label }}</label>
-        {{ field }}
-        <!-- form validation messages -->
-        {% include 'partials/form/form_errors.html' %}
-    </div>
-    {% endfor %}
+    {{ form|crispy }}
     <button class="btn btn-block btn-primary" type="submit">SIGN UP</button>
 </form>
 

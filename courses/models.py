@@ -93,7 +93,7 @@ class Course(models.Model):
     status = models.CharField(
         max_length=2,
         choices=Status.choices,
-        default=Status.DRAFT,
+        default=Status.PUBLISHED,
         help_text="Select the status of the course.",
     )
     featured_image = models.ImageField(

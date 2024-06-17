@@ -110,12 +110,13 @@ class CourseAdmin(admin.ModelAdmin):
         "regular_price",
         "discount_price",
         "publish",
+        "updated",
         "status",
     ]
     list_filter = [
         "status",
         "publish",
-        "instructor",
+        "level",
         "is_free",
         ParentCategoryFilter,
         SubCategoryFilter,

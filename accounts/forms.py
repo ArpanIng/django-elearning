@@ -80,30 +80,20 @@ class RegistrationForm(UserCreationForm):
     A Django ModelForm for user registration.
     """
 
-    class Meta:
+    class Meta(UserCreationForm.Meta):
         model = get_user_model()
-        fields = (
-            "first_name",
-            "last_name",
-            "username",
-            "email",
-            "password1",
-            "password2",
-        )
+        fields = UserCreationForm.Meta.fields + ["first_name", "last_name"]
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("label_suffix", "")  # sets the label_suffix to none
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        attrs = {"class": "form-control"}
         placeholders = {
-            "first_name": "Enter First Name",
-            "last_name": "Enter Last Name",
-            "username": "Enter Username",
-            "email": "Enter Email",
-            "password1": "Enter Password",
-            "password2": "Confirm Password",
+            "first_name": "Enter first name",
+            "last_name": "Enter last name",
+            "username": "Enter username",
+            "email": "Enter email",
+            "password1": "Enter password",
+            "password2": "Confirm password",
         }
         for field_name, field in self.fields.items():
-            field.widget.attrs.update(attrs)
             if field_name in placeholders:
                 field.widget.attrs["placeholder"] = placeholders[field_name]

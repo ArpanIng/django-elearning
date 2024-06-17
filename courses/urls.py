@@ -26,5 +26,8 @@ urlpatterns += [
 ]
 
 urlpatterns += [
+    path("course/create/", views.CourseCreateView.as_view(), name="course_create"),
     path("course/<slug:course_slug>/", views.CourseDetailView.as_view(), name="course_detail"),
+    path("course/<slug:course_slug>/edit/", views.CourseEditView.as_view(), name="course_edit"),
+    path("course/<slug:course_slug>/delete/", views.CourseDeleteView.as_view(), name="course_delete"),
 ]
