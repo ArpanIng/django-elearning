@@ -38,8 +38,15 @@
         </div>
         {% endif %}
 
+        {% if course.is_free %}
+        <button class="btn btn-primary btn-block mb-6" type="button" name="button">ENROLL</button>
+        {% else %}
+        <form action="{{ course.get_add_to_cart_url }}" method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary btn-block mb-3">Add to Cart</button>
+        </form>
         <button class="btn btn-primary btn-block mb-3" type="button" name="button">BUY NOW</button>
-        <button class="btn btn-orange btn-block mb-6" type="button" name="button">ENROLL</button>
+        {% endif %}
 
         <ul class="list-group list-group-flush">
             <li class="list-group-item d-flex align-items-center py-3">

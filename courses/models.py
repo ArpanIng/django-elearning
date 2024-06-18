@@ -149,6 +149,12 @@ class Course(models.Model):
 
     def get_unenroll_url(self):
         return reverse("courses:course_unenroll", kwargs={"course_slug": self.slug})
+    
+    def get_add_to_cart_url(self):
+        return reverse("carts:add_to_cart", kwargs={"course_slug": self.slug})
+
+    def get_remove_from_cart_url(self):
+        return reverse("carts:remove_from_cart", kwargs={"course_slug": self.slug})
 
     def has_discount(self):
         """helps determine whether a course has a discount or not"""

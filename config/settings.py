@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     # local apps
     "accounts.apps.AccountsConfig",
     "courses.apps.CoursesConfig",
+    "carts.apps.CartsConfig",
     # third-party packages
     "debug_toolbar",
     "django_extensions",
