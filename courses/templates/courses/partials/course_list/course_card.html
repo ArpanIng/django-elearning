@@ -1,9 +1,9 @@
 {% load static %}
 
-<div class="card border shadow p-2 lift sk-fade mb-6 flex-md-row align-items-center row gx-0">
+<div class="card border shadow p-2 sk-fade mb-6 flex-md-row align-items-center row gx-0">
     <!-- Image -->
     <div class="col-md-4 position-relative">
-        <a href="course-single-v5.html" class="card-img sk-thumbnail img-ratio-2 d-block">
+        <a href="{{ course.get_absolute_url }}" class="card-img sk-thumbnail img-ratio-2 d-block">
             <img class="rounded shadow-light-lg" src="{{ course.featured_image.url }}" alt="Course Image">
         </a>
     </div>
@@ -24,7 +24,7 @@
                         <div class="me-2 d-flex text-secondary icon-uxs">
                             <!-- Icon -->
                             <svg width="20" height="20" viewBox="0 0 20 20">
-                                <use xlink:href="{% static 'courses/img/svgs/reader.svg' %}#reader" />
+                                <use xlink:href="{% static 'assets/img/icons/reader.svg' %}#reader" />
                             </svg>
                         </div>
                         <div class="font-size-sm">5 lessons</div>
@@ -35,7 +35,7 @@
                         <div class="me-2 d-flex text-secondary icon-uxs">
                             <!-- Icon -->
                             <svg width="16" height="16" viewBox="0 0 16 16">
-                                <use xlink:href="{% static 'courses/img/svgs/clock.svg' %}#clock" />
+                                <use xlink:href="{% static 'assets/img/icons/clock.svg' %}#clock" />
                             </svg>
                         </div>
                         <div class="font-size-sm">8h 12m</div>

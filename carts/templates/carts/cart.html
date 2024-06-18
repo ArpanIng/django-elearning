@@ -42,7 +42,7 @@
                                     <button type="submit" class="btn px-0 pt-0  border-0 bg-transparent">
                                         <!-- Icon -->
                                         <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
-                                            <use xlink:href="{% static 'courses/img/svgs/delete.svg' %}#delete" />
+                                            <use xlink:href="{% static 'assets/img/icons/delete.svg' %}#delete" />
                                         </svg>
                                     </button>
                                 </form>
@@ -61,30 +61,6 @@
             <div class="cart-collaterals bg-white">
                 <div class="cart_totals">
                     <h2>Total:</h2>
-
-                    {% comment %} <table class="shop_table shop_table_responsive">
-                        <tbody>
-                            <tr class="cart-subtotal">
-                                <th>Subtotal</th>
-                                <td data-title="Subtotal"><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">£</span>109.95</span></td>
-                            </tr>
-
-                            <tr class="order-total">
-                                <th>Total</th>
-                                <td data-title="Total"><strong><span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">£</span>109.95</span></strong> </td>
-                            </tr>
-
-                            <tr>
-                                <td class="actions">
-                                    <div class="coupon">
-                                        <label for="coupon_code">Coupon:</label>
-                                        <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="Coupon code" autocomplete="off"> <input type="submit" class="button" name="apply_coupon" value="Apply coupon">
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table> {% endcomment %}
-
                     <div class="d-flex align-items-center mb-2">
                         <ins class="h2 mb-0">${{ total_price }}</ins>
                         {% if total_discount_percentage %}
