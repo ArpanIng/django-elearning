@@ -160,17 +160,14 @@ class Course(models.Model):
         """helps determine whether a course has a discount or not"""
         return self.discount_price is not None
 
+    def get_current_price(self):
+        return self.discount_price if self.has_discount() else self.regular_price
+
     @property
     def get_discount_percentage(self):
-        # if self.has_discount():
-        #     discount_percentage = round((self.regular_price - self.discount_price) / self.regular_price) * 100
-        #     return discount_percentage
-        # return 0  # Return 0 when the regular_price is 0 to avoid division by zero error
-    
         if self.has_discount():
-            discount_percentage = round(
-                ((self.regular_price - self.discount_price) / self.regular_price) * 100
-            )
+            discount_price = self.regular_price - self.discount_price
+            discount_percentage = round((discount_price / self.regular_price) * 100)
             return discount_percentage
         return 0  # Return 0 when the regular_price is 0 to avoid division by zero error
 

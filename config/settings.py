@@ -46,6 +46,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",  # debug-toolbar
+    "carts.middleware.CartMiddleware",  # custom cart
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -62,6 +63,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "courses.context_processors.menu_links",  # category context-processors
+                "carts.context_processors.cart",  # cart context-processor
             ],
         },
     },

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, login
 from django.contrib.auth import views as auth_views
 from django.db.models import Count
 from django.shortcuts import redirect
@@ -7,6 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
+from carts.models import Cart
+from carts.views import merge_carts
 from courses.models import Course
 
 from .forms import CustomAuthenticationForm, RegistrationForm
@@ -39,6 +41,26 @@ class CustomLoginView(auth_views.LoginView):
     def form_invalid(self, form):
         messages.error(self.request, "Invalid email or password.")
         return super().form_invalid(form)
+
+    def form_valid(self, form):
+        user = form.get_user()
+        anonymous_cart = None
+        if not self.request.user.is_authenticated:
+            session_key = self.request.session.session_key
+            if session_key:
+                try:
+                    anonymous_cart = Cart.objects.get(session_key=session_key)
+                except Cart.DoesNotExist:
+                    pass
+
+        login(self.request, user)
+
+        if anonymous_cart:
+            authenticated_cart, created = Cart.objects.get_or_create(user=user)
+            merge_carts(anonymous_cart, authenticated_cart)
+            anonymous_cart.delete()
+
+        return super().form_valid(form)
 
 
 class CustomLogoutView(auth_views.LogoutView):
