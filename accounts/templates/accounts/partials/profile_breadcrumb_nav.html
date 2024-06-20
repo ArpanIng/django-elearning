@@ -1,0 +1,25 @@
+<nav class="mb-4 mb-md-4 mt-4" aria-label="breadcrumb">
+    <ol class="breadcrumb breadcrumb-scroll">
+        <li class="breadcrumb-item">
+            <a class="text-gray-800" href="{% url 'users:profile' %}">
+                View public profile
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a
+                href="{% url 'users:profile_update' %}"
+                class="text-{% if page == 'profile_edit_page' %}gigas{% else %}gray{% endif %}-800"
+            >
+                Profile
+            </a>
+        </li>
+        <li class="breadcrumb-item">
+            <a 
+                href="{% url 'users:profile_photo_update' %}"
+                class="text-{% if page == 'profile_photo_page' %}gigas{% else %}gray{% endif %}-800"
+            >
+                Photo
+            </a>
+        </li>
+    </ol>
+</nav>

@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db import models
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 from .forms import UserChangeForm, UserCreationForm
 from .models import CustomUser
@@ -72,6 +74,14 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ["email", "username"]
     ordering = ["email"]
     filter_horizontal = ["groups", "user_permissions"]
+    # Configure formfield_overrides to apply CKEditor5Widget for about field
+    formfield_overrides = {
+        models.TextField: {
+            "widget": CKEditor5Widget(
+                attrs={"class": "django_ckeditor_5"}, config_name="custom_config"
+            )
+        },
+    }
 
 
 admin.site.register(CustomUser, UserAdmin)

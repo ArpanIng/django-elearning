@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 
 class UserCreationForm(forms.ModelForm):
@@ -97,3 +98,44 @@ class RegistrationForm(UserCreationForm):
         for field_name, field in self.fields.items():
             if field_name in placeholders:
                 field.widget.attrs["placeholder"] = placeholders[field_name]
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = (
+            "email",
+            "username",
+            "first_name",
+            "last_name",
+            "headline",
+            "about",
+            "website_link",
+            "twitter_url",
+            "facebook_url",
+            "linkedin_url",
+            "youtube_url",
+        )
+        widgets = {
+            "about": CKEditor5Widget(
+                attrs={"class": "django_ckeditor_5"}, config_name="custom_config"
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        placeholders = {
+            "email": "Enter email",
+            "username": "Enter username",
+            "first_name": "Enter first name",
+            "last_name": "Enter last name",
+        }
+        for field_name, field in self.fields.items():
+            if field_name in placeholders:
+                field.widget.attrs["placeholder"] = placeholders[field_name]
+
+
+class ProfilePhotoForm(forms.ModelForm):
+    class Meta:
+        model = get_user_model()
+        fields = ["profile"]

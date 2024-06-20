@@ -1,19 +1,24 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.views.generic.edit import FormView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
 
 from carts.models import Cart
 from carts.views import merge_carts
 from courses.models import Course
 
-from .forms import CustomAuthenticationForm, RegistrationForm
-
-User = get_user_model()
+from .forms import (
+    CustomAuthenticationForm,
+    ProfileForm,
+    ProfilePhotoForm,
+    RegistrationForm,
+)
 
 
 class RegistrationView(FormView):
@@ -95,6 +100,70 @@ class CustomPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = "accounts/auth/password_reset_complete.html"
 
 
+class ProfileView(LoginRequiredMixin, DetailView):
+    """
+    Display the profile details of the logged-in user.
+    """
+
+    model = get_user_model()
+    context_object_name = "profile"
+    template_name = "accounts/profile.html"
+
+    def get_object(self):
+        """
+        Returns the currently logged-in user as the object for the view.
+        """
+        return self.request.user
+
+
+class ProfileEditView(LoginRequiredMixin, UpdateView):
+    """
+    View to edit the profile details of the logged-in user.
+    """
+
+    model = get_user_model()
+    context_object_name = "profile"
+    form_class = ProfileForm
+    success_url = reverse_lazy("users:profile_update")
+    template_name = "accounts/profile_form.html"
+
+    def get_object(self):
+        return self.request.user
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page"] = "profile_edit_page"
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Profile updated successfully.")
+        return super().form_valid(form)
+
+
+class ProfilePhotoEditView(LoginRequiredMixin, UpdateView):
+    """
+    View to edit the profile photo of the logged-in user.
+    """
+
+    model = get_user_model()
+    context_object_name = "profile"
+    form_class = ProfilePhotoForm
+    success_url = reverse_lazy("users:profile_photo_update")
+    template_name = "accounts/profile_photo.html"
+
+    def get_object(self):
+        return self.request.user
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["page"] = "profile_photo_page"
+        return context
+
+    def form_valid(self, form):
+        messages.success(self.request, "Profile photo updated successfully.")
+        return super().form_valid(form)
+
+
 class DashboardView(ListView):
     """
     Display a dashboard of courses for a request user.
@@ -113,5 +182,3 @@ class DashboardView(ListView):
         courses_count = self.get_queryset().aggregate(total_courses=Count("id"))["total_courses"]
         context["courses_count"] = courses_count
         return context
-    
-    

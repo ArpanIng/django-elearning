@@ -180,6 +180,9 @@ CKEDITOR_5_CONFIGS = {
             "bold", "italic", "link", "bulletedList", "numberedList", "blockQuote", "imageUpload",
         ],
     },
+    "custom_config": {
+        "toolbar": ["bold", "italic"],
+    },
     "extends": {
         "blockToolbar": [
             "paragraph", "heading1", "heading2", "heading3",

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+{% include 'accounts/partials/profile_breadcrumb_nav.html' %}
+</div>
+
+<header class="py-8 py-md-8" style="background-image: none">
+    <div class="container text-center py-xl-2">
+        <h1 class="display-4 fw-semi-bold mb-0">Profile</h1>
+        <p class="fw-semi-bold my-2">Add information about yourself</p>
+    </div>
+</header>
+
+<div class="container py-4">
+    {% include 'partials/messages.html' %}
+    <div class="card">
+        <div class="card-body">
+            <form action="" method="post" novalidate>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col">
+                        {{ form.media }}
+                        {{ form|crispy }}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Profile</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
