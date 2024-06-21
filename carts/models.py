@@ -39,36 +39,36 @@ class Cart(models.Model):
         courses = [item.course for item in cart_items]
         return courses
 
-    def calculate_total_regular_price(self):
-        """Calculate the total regular price of all courses in the cart."""
-        return sum(course.regular_price for course in self.get_courses())
+    def calculate_total(self) -> tuple[float]:
+        """
+        Calculate the total price of all courses, including regular price, discount price,
+        and the total discount percentage.
+        Returns:
+            tuple: A tuple containing:
+            - total_price (float): The total price after applying discounts.
+            - total_regular_price (float): The sum of regular prices of all courses.
+            - total_discount_percentage (float): The percentage of the discount applied,
+              rounded to the nearest whole number. If there are no courses or the total
+              regular price is zero, this will be 0.
+        """
 
-    def calculate_total_discount_price(self):
-        """Calculate the total discount price of all discounted courses in the cart."""
-        return sum(
-            course.regular_price - course.discount_price
-            for course in self.get_courses()
-            if course.has_discount()
-        )
+        total_price = 0
+        total_regular_price = 0
+        total_discount_price = 0
+        total_discount_percentage = 0
 
-    def calculate_total_price(self):
-        """Calculate the total current price of all courses in the cart."""
-        return sum(course.get_current_price() for course in self.get_courses())
+        for course in self.get_courses():
+            if course.has_discount():
+                total_price += course.discount_price
+                total_discount_price = course.regular_price - course.discount_price
+            else:
+                total_price += course.regular_price
 
-    def calculate_total_discount_percentage(self):
-        """Calculate the total discount percentage for all courses in the cart."""
-        total_regular_price = self.calculate_total_regular_price()
-        total_discount_price = self.calculate_total_discount_price()
-        return (
-            round((total_discount_price / total_regular_price) * 100)
-            if total_regular_price > 0
-            else 0
-        )
+            total_regular_price += course.regular_price
 
-    def calculate_total(self):
-        total_price = self.calculate_total_price()
-        total_regular_price = self.calculate_total_regular_price()
-        total_discount_percentage = self.calculate_total_discount_percentage()
+        if total_regular_price > 0:
+            total_discount_percentage = round((total_discount_price / total_regular_price) * 100)
+
         return total_price, total_regular_price, total_discount_percentage
 
 

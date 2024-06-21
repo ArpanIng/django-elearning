@@ -45,18 +45,14 @@ class CartView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # access cart from context-processor
         cart = self.request.cart
-        context["cart"] = cart
-        courses = cart.get_courses()
 
         # tuple unpacking / assigns each value to its corresponding variable
         total_price, total_regular_price, total_discount_percentage = (
             cart.calculate_total()
         )
-        context["courses"] = courses
-        context["courses_count"] = len(courses)
         context["total_price"] = total_price
         context["total_regular_price"] = total_regular_price
         context["total_discount_percentage"] = total_discount_percentage
-        context["cart"] = cart
         return context

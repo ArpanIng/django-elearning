@@ -5,7 +5,7 @@
 <!-- page header -->
 {% include 'partials/page_header.html' with page_title='Shopping cart' %}
 <!-- page header end -->
-{% if courses_count > 0 %}
+{% if course_count > 0 %}
 <div class="container py-4">
     <div class="row">
         <h5>{{ courses_count }} Course{{ courses_count|pluralize }} in Cart</h5>
@@ -59,15 +59,15 @@
                     <div class="d-flex align-items-center mb-2">
                         <ins class="h2 mb-0">${{ total_price }}</ins>
                         {% if total_discount_percentage %}
-                          <del class="ms-3">${{ total_regular_price }}</del>
+                        <del class="ms-3">${{ total_regular_price }}</del>
                           <ins class="ms-3">{{ total_discount_percentage }}% off</ins>
                         {% endif %}
                     </div>
 
                     <div class="wc-proceed-to-checkout">
-                        <a href="{% url 'orders:checkout' %}" class="checkout-button button alt wc-forward">
-                            Proceed to checkout
-                        </a>
+                        <form action="{% url 'orders:checkout' %}" method="get">
+                            <button class="checkout-button button alt wc-forward">Proceed to checkout</button>
+                        </form>
                     </div>
                 </div>
 
