@@ -5,8 +5,11 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("ckeditor5/", include("django_ckeditor_5.urls")),
     path("", include("courses.urls", namespace="courses")),
     path("accounts/", include("accounts.urls", namespace="accounts")),
+    path("user/", include("accounts.profile_urls", namespace="profiles")),
+    path("cart/", include("carts.urls", namespace="carts")),
 ]
 
 if settings.DEBUG:

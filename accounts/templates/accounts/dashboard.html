@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- page header -->
+{% include 'partials/page_header.html' with page_title='Dashboard' %}
+<!-- page header end -->
+
+<div class="container py-4">
+    {% include 'partials/messages.html' %}
+    <div class="col-lg-12">
+        <div class="card border mb-5 bg-transparent rounded-3">
+            <!-- Card header -->
+            <div class="card-header bg-transparent border-bottom p-3">
+                <div class="d-sm-flex justify-content-between align-items-center">
+                    <h5 class="mb-2 mb-sm-0">
+                        My Courses
+                        <span class="badge bg-primary bg-opacity-10 text-primary">{{ courses_count }}</span>
+                    </h5>
+                    <a href="{% url 'courses:course_create' %}" class="btn btn-sm btn-primary mb-0">Add New</a>
+                </div>
+            </div>
+            <!-- Card header End -->
+
+            <!-- Card body Start -->
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle p-4 mb-0 table-hover table-shrink">
+                        <thead class="table-light text-uppercase">
+                            <tr>
+                                <th scope="col">Course</th>
+                                <th scope="col">Regular Price</th>
+                                <th scope="col">Discount Price</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Is Free</th>
+                                <th scope="col">Level</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in courses %}
+                            <tr>
+                                <td><a href="{% url 'courses:course_edit' course.slug %}">{{ course.title }}</a></td>
+                                <td>{{ course.regular_price }}</td>
+                                <td>{{ course.discount_price }}</td>
+                                <td>{{ course.status }}</td>
+                                <td>{{ course.is_free }}</td>
+                                <td>{{ course.get_level_display }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <a href="{% url 'courses:course_delete' course.slug %}" class="btn btn-light btn-round mb-0" >
+                                            <svg width="16" height="16" fill="none" viewBox="0 0 16 16">
+                                                <use xlink:href="{% static 'assets/img/icons/delete.svg' %}#delete" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr class="display-4">
+                                <td colspan="7">You don't have any courses yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+          </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% if is_create %}
+<!-- page header -->
+{% include 'partials/page_header.html' with page_title='Create a course' %}
+{% else %}
+{% include 'partials/page_header.html' with page_title='Edit a course' %}
+{% endif %}
+<!-- page header end -->
+
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <form action="" method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {{ form.media }}
+                {{ form|crispy }}
+                <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-sm btn-info me-2">Go Back</a>
+                <button type="submit" class="btn btn-sm btn-primary">
+                    {% if is_create %}Create{% else %}Edit{% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}
