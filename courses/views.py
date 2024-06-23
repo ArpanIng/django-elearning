@@ -11,8 +11,9 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
+from carts.models import Cart
 from .forms import CourseForm
-from .models import Category, Course
+from .models import Category, Course, Enrollment
 
 User = get_user_model()
 
@@ -109,8 +110,30 @@ class CourseDetailView(DetailView):
     slug_url_kwarg = "course_slug"
     template_name = "courses/course_detail.html"
 
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+        if obj.status == Course.Status.DRAFT:
+            raise Http404("No course found matching the query.")
+        return obj
+    
     def get_queryset(self):
-        return Course.published.all()
+        queryset = Course.published.all().select_related("instructor")
+        return queryset
+    
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        course = self.object
+        if user.is_authenticated:
+            context["is_enrolled"] = Enrollment.objects.filter(student=user, course=course).exists()
+        cart = self.request.cart
+        in_cart = cart.courses.filter(id=course.id).exists()
+        context["in_cart"] = in_cart
+        context["cart"] = cart
+            # context["in_cart"] = Cart
+        return context
+    
 
 
 class CourseEditView(

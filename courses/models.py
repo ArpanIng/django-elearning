@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count
 from django.template.defaultfilters import slugify
@@ -134,6 +135,7 @@ class Course(models.Model):
 
     class Meta:
         indexes = [
+            models.Index(fields=["title"]),
             models.Index(fields=["slug"]),
             models.Index(fields=["publish"]),
         ]
@@ -171,13 +173,19 @@ class Course(models.Model):
             return discount_percentage
         return 0  # Return 0 when the regular_price is 0 to avoid division by zero error
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.title)
+    def clean(self):
         if self.is_free:
             self.regular_price = None  # will be saved as null in database
             self.discount_price = None
-        return super(Course, self).save(*args, **kwargs)
+        else:
+            if self.regular_price is None:
+                raise ValidationError('Regular price must be set for non-free courses.')
+        
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 class CourseRequirement(models.Model):
@@ -266,7 +274,7 @@ class Enrollment(models.Model):
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="enrollments",
+        related_name="enrolled",
     )
     course = models.ForeignKey(
         Course,
@@ -277,6 +285,9 @@ class Enrollment(models.Model):
     is_completed = models.BooleanField(default=False)
     completion_date = models.DateTimeField(blank=True, null=True)
     feedback = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ("student", "course")
 
     def __str__(self):
         return f"{self.student}: {self.course.title}"

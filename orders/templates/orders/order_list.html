@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- page header -->
+{% include 'partials/page_header.html' with page_title='Purchase history' %}
+<!-- page header end -->
+
+<div class="container py-4">
+    <div class="col-lg-12">
+        <div class="card border mb-5 bg-transparent rounded-3">
+            <!-- Card body Start -->
+            <div class="card-body">
+                {% if orders %}
+                <div class="table-responsive">
+                    <table class="table align-middle p-4 mb-0 table-hover table-shrink">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Total Price</th>
+                                <th scope="col">Payment type</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td><a href="{{ item.course.get_absolute_url }}">{{ item.course.title }}</a></td>
+                                <td>{{ item.order.ordered_date|date:'M d, Y' }}</td>
+                                <td>{{ item.order.total_amount }}</td>
+                                <td>{{ item.order.get_payment_method_display }}</td>
+                                <td>
+                                    <a href="" class="btn btn-sm border border-black">
+                                        <span>Receipt</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+          </div>
+    </div>
+</div>
+{% endblock content %}

@@ -144,4 +144,7 @@ class LessionAdmin(admin.ModelAdmin):
     list_display = ["title"]
 
 
-admin.site.register(Enrollment)
+# admin.site.register(Enrollment)
+@admin.register(Enrollment)
+class EnrollmentModelAdmin(admin.ModelAdmin):
+    list_display = ["student", "course", "enrollment_date", "is_completed"]

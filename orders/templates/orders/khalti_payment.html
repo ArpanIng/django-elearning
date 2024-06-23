@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4 my-4">
+    <div class="card">
+        <div class="card-body">
+            <form action="{% url 'orders:khalti_initiate' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="return_url" value="http://127.0.0.1:8000/khalti/verify/">
+                <input type="hidden" name="amount" value="{{ order.total_amount }}">
+                <input type="hidden" name="purchase_order_id" value="{{ order.id }}">
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <img src="{% static 'assets/img/icons/khalti.png' %}" alt="khalti logo">
+                    Pay with Khalti
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

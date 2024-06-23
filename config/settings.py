@@ -1,8 +1,14 @@
+import environ
+
 from pathlib import Path
+
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# path to .env file & read the .env variables
+environ.Env.read_env(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -29,12 +35,14 @@ INSTALLED_APPS = [
     "accounts.apps.AccountsConfig",
     "courses.apps.CoursesConfig",
     "carts.apps.CartsConfig",
+    "orders.apps.OrdersConfig",
     # third-party packages
     "debug_toolbar",
     "django_extensions",
     "crispy_forms",
     "crispy_bootstrap5",
     "django_ckeditor_5",
+    "django_countries",
 ]
 
 MIDDLEWARE = [
@@ -161,6 +169,9 @@ LOGOUT_REDIRECT_URL = "/"
 
 # SMTP configuration
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# accessing environment variables
+KHALTI_LIVE_SECRET_KEY = env.str("KHALTI_LIVE_SECRET_KEY")
 
 # django-ckeditor-5 configuration
 customColorPalette = [

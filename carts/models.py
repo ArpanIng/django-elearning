@@ -69,7 +69,7 @@ class Cart(models.Model):
         if total_regular_price > 0:
             total_discount_percentage = round((total_discount_price / total_regular_price) * 100)
 
-        return total_price, total_regular_price, total_discount_percentage
+        return total_price, total_regular_price, total_discount_price, total_discount_percentage
 
 
 class CartItem(models.Model):

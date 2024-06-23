@@ -49,7 +49,7 @@ class CartView(TemplateView):
         cart = self.request.cart
 
         # tuple unpacking / assigns each value to its corresponding variable
-        total_price, total_regular_price, total_discount_percentage = (
+        total_price, total_regular_price, total_discount_price, total_discount_percentage = (
             cart.calculate_total()
         )
         context["total_price"] = total_price

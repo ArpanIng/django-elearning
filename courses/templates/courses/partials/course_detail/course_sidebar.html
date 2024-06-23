@@ -8,7 +8,7 @@
                 <use xlink:href="{% static 'assets/img/icons/play.svg' %}#play" />
             </svg>
         </div>
-        <img class="rounded shadow-light-lg" src="{% static 'assets/img/products/product-2.jpg' %}" alt="...">
+        <img class="rounded shadow-light-lg" src="{{ course.featured_image.url }}" alt="course featured image">
     </a>
 
     <div class="pt-5 pb-4 px-5 px-lg-3 px-xl-5">
@@ -38,14 +38,29 @@
         </div>
         {% endif %}
 
+        <!-- if a course if free, only display the enroll button -->
         {% if course.is_free %}
-        <button class="btn btn-primary btn-block mb-6" type="button" name="button">ENROLL</button>
+        {{ is_enrolled }}
+        {% if is_enrolled %}
+        <button class="btn btn-primary btn-block mb-6" type="button" name="button">Go to course</button>
         {% else %}
-        <form action="{{ course.get_add_to_cart_url }}" method="post">
-            {% csrf_token %}
-            <button class="btn btn-primary btn-block mb-3">Add to Cart</button>
+        <button class="btn btn-primary btn-block mb-6" type="button" name="button">ENROLL</button>
+        {% endif %}
+        <!-- course is not free -->
+        {% else %}
+            <!-- check if a course is in the cart -->
+            {% if in_cart %}
+            <a href="{% url 'carts:cart' %}" class="btn btn-primary btn-block mb-3">Go to Cart</a>
+            {% else %}
+            <form action="{{ course.get_add_to_cart_url }}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-primary btn-block mb-3">Add to Cart</button>
+            </form>
+        {% endif %}
+        <form action="" method="post">
+            {% csrf_token %}    
+            <button class="btn btn-primary btn-block mb-3" type="button" name="button">BUY NOW</button>
         </form>
-        <button class="btn btn-primary btn-block mb-3" type="button" name="button">BUY NOW</button>
         {% endif %}
 
         <ul class="list-group list-group-flush">
