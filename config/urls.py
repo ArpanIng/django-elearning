@@ -3,6 +3,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+# Custom error handler view page
+handler403 = "courses.error_handlers.handler403"
+handler404 = "courses.error_handlers.handler404"
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ckeditor5/", include("django_ckeditor_5.urls")),

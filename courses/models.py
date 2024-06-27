@@ -42,7 +42,10 @@ class Category(models.Model):
 
     def get_subcategory_url(self):
         """return the URL of the category and subcategory."""
-        return reverse("courses:courses_by_subcategory", kwargs={"category_slug": self.parent.slug,"subcategory_slug": self.slug})
+        return reverse(
+            "courses:courses_by_subcategory",
+            kwargs={"category_slug": self.parent.slug, "subcategory_slug": self.slug},
+        )
 
     @staticmethod
     def get_categories():
@@ -66,12 +69,16 @@ class Course(models.Model):
     class Status(models.TextChoices):
         DRAFT = "DF", "Draft"
         PUBLISHED = "PB", "Published"
-    
+
     class DifficultyLevel(models.TextChoices):
         ALL_LEVELS = "ALL", "All Levels"
         BEGINNER = "BE", "Beginner"
         INTERMEDIATE = "IN", "Intermediate"
         ADVANCED = "AD", "Advanced"
+
+    class PriceStatus(models.TextChoices):
+        FREE = "FREE", "Free"
+        PAID = "PAID", "Paid"
 
     title = models.CharField(max_length=250, help_text="Enter course title.")
     slug = models.SlugField(max_length=250, unique=True)
@@ -80,15 +87,13 @@ class Course(models.Model):
     regular_price = models.DecimalField(
         max_digits=6,
         decimal_places=2,
-        null=True,
-        blank=True,
+        default=0.00,
         help_text="Price of the course.",
     )
     discount_price = models.DecimalField(
         max_digits=6,
         decimal_places=2,
-        null=True,
-        blank=True,
+        default=0.00,
         help_text="Discount price of the course.",
     )
     status = models.CharField(
@@ -100,8 +105,10 @@ class Course(models.Model):
     featured_image = models.ImageField(
         default="default_course_image.jpg", upload_to="Courses/", null=True
     )
-    is_free = models.BooleanField(
-        default=False,
+    price_status = models.CharField(
+        max_length=4,
+        choices=PriceStatus.choices,
+        default=PriceStatus.PAID,
         help_text="Indicates whether the course is available for free or not.",
     )
     certificate = models.BooleanField(
@@ -151,7 +158,7 @@ class Course(models.Model):
 
     def get_unenroll_url(self):
         return reverse("courses:course_unenroll", kwargs={"course_slug": self.slug})
-    
+
     def get_add_to_cart_url(self):
         return reverse("carts:add_to_cart", kwargs={"course_slug": self.slug})
 
@@ -160,7 +167,7 @@ class Course(models.Model):
 
     def has_discount(self):
         """helps determine whether a course has a discount or not"""
-        return self.discount_price is not None
+        return self.discount_price > 0.00 and self.discount_price < self.regular_price
 
     def get_current_price(self):
         return self.discount_price if self.has_discount() else self.regular_price
@@ -171,16 +178,18 @@ class Course(models.Model):
             discount_price = self.regular_price - self.discount_price
             discount_percentage = round((discount_price / self.regular_price) * 100)
             return discount_percentage
-        return 0  # Return 0 when the regular_price is 0 to avoid division by zero error
+        return 0  # Return 0 when the regular_price is 0 to avoid division by zero error    
 
     def clean(self):
-        if self.is_free:
-            self.regular_price = None  # will be saved as null in database
-            self.discount_price = None
-        else:
-            if self.regular_price is None:
-                raise ValidationError('Regular price must be set for non-free courses.')
-        
+        if self.price_status == self.PriceStatus.FREE:
+            self.regular_price = 0.00
+            self.discount_price = 0.00
+        elif self.price_status == self.PriceStatus.PAID:
+            if self.regular_price <= 0.00:
+                raise ValidationError("Regular price must be set and greater than zero for paid courses.")
+            if self.discount_price > self.regular_price:
+                raise ValidationError("Discount price cannot be greater than the regular price.")
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)

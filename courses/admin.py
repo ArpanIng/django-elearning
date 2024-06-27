@@ -117,7 +117,7 @@ class CourseAdmin(admin.ModelAdmin):
         "status",
         "publish",
         "level",
-        "is_free",
+        "price_status",
         ParentCategoryFilter,
         SubCategoryFilter,
     ]

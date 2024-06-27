@@ -1,8 +1,8 @@
 from django.contrib import messages
-from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db.models import Count, Q
+from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -12,6 +12,8 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from carts.models import Cart
+
+from . import utils
 from .forms import CourseForm
 from .models import Category, Course, Enrollment
 
@@ -41,11 +43,11 @@ class CourseCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
         if self.object.status == Course.Status.DRAFT:
             return redirect("accounts:dasboard")
         return response
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["is_create"] = True
-        return context    
+        return context
 
 
 class CourseListView(ListView):
@@ -59,22 +61,7 @@ class CourseListView(ListView):
 
     def get_queryset(self):
         queryset = Course.published.all().select_related("instructor")
-        query = self.request.GET.get("q")
-        category = self.kwargs.get("category_slug")
-        subcategory = self.kwargs.get("subcategory_slug")
-
-        # filter course based on search params
-        if query:
-            lookups = Q(title__icontains=query) | Q(description__icontains=query)
-            queryset = queryset.filter(lookups)
-
-        # filter course based on category or subcategory
-        if category:
-            queryset = queryset.filter(category__slug=category)
-
-        if subcategory:
-            queryset = queryset.filter(subcategory__slug=subcategory)
-
+        queryset = utils.filter_courses(self.request, self.kwargs, queryset)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -82,24 +69,35 @@ class CourseListView(ListView):
         query = self.request.GET.get("q")
         category_slug = self.kwargs.get("category_slug")
         subcategory_slug = self.kwargs.get("subcategory_slug")
+        queryset = self.get_queryset()
+
         # for breadcrumb navigation
         # filters the current url category and it's childrens
         category = Category.objects.filter(slug=category_slug, parent__isnull=True).prefetch_related("children")
         # count courses accordingly to the returned queryset (by search, category, and subcategory)
-        courses_count = self.get_queryset().aggregate(count=Count("id"))
+        courses_count = queryset.count()
 
         # based on the slug, access the title
         if category_slug:
             category_slug = Category.objects.get(slug=category_slug)
             context["title"] = category_slug.title
+            # FIX: the draft courses are also being counted
+            subcategories_with_course_count = Category.objects.filter(parent=category_slug).annotate(course_count=Count('subcategory_courses'))
+            context["subcategories_with_course_count"] = subcategories_with_course_count
         if subcategory_slug:
             subcategory_slug = Category.objects.get(slug=subcategory_slug)
             context["title"] = subcategory_slug.title
 
+        # counts courses filtered by returned queryset
+        levels = utils.get_course_counts_by_difficulty_level(queryset=queryset)
+        statuses = utils.get_course_counts_by_price_status(queryset=queryset)
+
         context["category"] = category
         context["query"] = query
         context["subcategory"] = subcategory_slug
-        context["results_count"] = courses_count["count"]
+        context["results_count"] = courses_count
+        context["levels"] = levels
+        context["statuses"] = statuses
         return context
 
 
@@ -149,7 +147,7 @@ class CourseEditView(
     def test_func(self):
         course = self.get_object()
         return course.instructor == self.request.user
-    
+
     def get_success_url(self):
         course = self.get_object()
         if course.status == Course.Status.DRAFT:
