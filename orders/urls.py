@@ -5,7 +5,8 @@ from . import views
 app_name = "orders"
 
 urlpatterns = [
-    path("order/completed/", views.OrderCompletedView.as_view(), name="order_completed"),
+    path("order/<uuid:order_id>/completed/", views.OrderCompletedView.as_view(), name="order_completed"),
+    path("order/<uuid:order_id>/failed/", views.OrderFailedView.as_view(), name="order_failed"),
     path("purchase-history/", views.OrderListView.as_view(), name="order_list"),
     path("order/summary/", views.OrderSummaryView.as_view(), name="order_detail"),
     path("payment/checkout/", views.CheckoutView.as_view(), name="checkout"),

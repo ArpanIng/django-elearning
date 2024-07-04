@@ -30,12 +30,12 @@
 
     <!-- Theme CSS -->
     <link rel="stylesheet" href="{% static 'assets/css/theme.min.css' %}">
-
-    <title>Skola</title>
 </head>
 <body>
     <!-- header -->
+    {% block header %}
     {% include 'partials/header.html' %}
+    {% endblock header %}
 
     {% block content %}{% endblock content %}
 

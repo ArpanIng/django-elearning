@@ -5,9 +5,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import DatabaseError, transaction
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView, View
@@ -56,7 +57,6 @@ class CheckoutView(LoginRequiredMixin, FormView):
             total_discount_price,
             total_discount_percentage,
         ) = self.get_cart_totals()
-
         try:
             with transaction.atomic():  # ensures all query are executed as a single transaction
                 # Save the order with the calculated totals
@@ -83,16 +83,16 @@ class CheckoutView(LoginRequiredMixin, FormView):
                     return redirect(
                         reverse("orders:khalti_payment", kwargs={"order_id": order.id})
                     )
-
-        except DatabaseError:
-            # Handle any errors that occur during the transaction
-            messages.error(
-                self.request,
-                "There was an error processing your order. Please try again.",
-            )
-            return redirect("carts:cart")
-
-        return super().form_valid(form)
+                
+                order.order_status = Order.OrderStatus.COMPLETED
+                order.is_completed = True
+                order.save()
+                return redirect("orders:order_completed", order_id=order.id)
+        except Exception  as e:
+            order.order_status = Order.OrderStatus.FAILED
+            order.is_completed = False
+            order.save()
+            return redirect("orders:order_failed", order_id=order.id)
 
 
 class KhaltiPaymentView(LoginRequiredMixin, View):
@@ -143,11 +143,8 @@ def initiate_khalti_payment(request):
         "Content-Type": "application/json",
     }
 
-    try:
-        response = requests.request("POST", url, headers=headers, data=payload)
-    except requests.RequestException:
-        return HttpResponse("Failed to initiate Khalti payment.", status=500)
-
+    response = requests.request("POST", url, headers=headers, data=payload)
+    
     if response.status_code == 200:
         payment_url = response.json()["payment_url"]
         if payment_url:
@@ -159,6 +156,10 @@ def initiate_khalti_payment(request):
         return HttpResponse("Failed to initiate Khalti payment.")
 
 
+"""
+NOTE:
+Not implemented, the created merchant account had 0 balance amount
+"""
 @login_required
 def verify_khalti_payment(request):
     url = "https://a.khalti.com/api/v2/epayment/lookup/"
@@ -184,26 +185,39 @@ def verify_khalti_payment(request):
             return redirect("/")
 
 
-class OrderCompletedView(LoginRequiredMixin, TemplateView):
+class OrderCompletedView(LoginRequiredMixin, View):
+    """"""
     template_name = "orders/order_completed.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # user = user
-        # id = id
-        # order = get_object_or_404(Order, id=id, user=user)
-        # context["order"] = order
-        return context
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, pk=order_id)
+        # Check if the logged-in user is the owner of the order
+        if order.user != request.user:
+            raise PermissionDenied
+        context = {"order": order}
+        return render(request, self.template_name, context)
+
+
+class OrderFailedView(LoginRequiredMixin, View):
+    def get(self, request, order_id):
+        order = get_object_or_404(Order, id=order_id)
+        # Check if the logged-in user is the owner of the order
+        if order.user != request.user:
+            raise PermissionDenied
+        context= {"order": order}
+        return render(request, "orders/order_failed.html", context)
 
 
 class OrderListView(LoginRequiredMixin, ListView):
+    """List user purchase history."""
+
     model = Order
     context_object_name = "orders"
     template_name = "orders/order_list.html"
 
     def get_queryset(self):
         queryset = (
-            Order.objects.filter(user=self.request.user)
+            Order.objects.filter(user=self.request.user, is_completed=True)
             .prefetch_related("items__course")
             .order_by("-ordered_date")
         )
