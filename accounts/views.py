@@ -129,7 +129,7 @@ class ProfileEditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         return self.request.user
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page"] = "profile_edit_page"
@@ -153,7 +153,7 @@ class ProfilePhotoEditView(LoginRequiredMixin, UpdateView):
 
     def get_object(self):
         return self.request.user
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["page"] = "profile_photo_page"
@@ -176,9 +176,11 @@ class DashboardView(ListView):
 
     def get_queryset(self):
         return Course.objects.filter(instructor=self.request.user).order_by("-publish")
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        courses_count = self.get_queryset().aggregate(total_courses=Count("id"))["total_courses"]
+        courses_count = self.get_queryset().aggregate(total_courses=Count("id"))[
+            "total_courses"
+        ]
         context["courses_count"] = courses_count
         return context

@@ -14,6 +14,7 @@ class Order(models.Model):
         COMPLETED = "COMPLETED", "Completed"
         FAILED = "FAILED", "Failed"
         CANCELED = "CANCELED", "Canceled"
+
     class PaymentOptions(models.TextChoices):
         STRIPE = "STP", "Stripe"
         ESEWA = "ES", "eSewa"
@@ -39,7 +40,9 @@ class Order(models.Model):
     total_amount = models.DecimalField(
         max_digits=10, decimal_places=2, help_text="Final amount to be paid."
     )
-    order_status = models.CharField(max_length=10, choices=OrderStatus.choices, default=OrderStatus.PENDING)
+    order_status = models.CharField(
+        max_length=10, choices=OrderStatus.choices, default=OrderStatus.PENDING
+    )
     payment_method = models.CharField(max_length=10, choices=PaymentOptions.choices)
     courses = models.ManyToManyField(Course, through="OrderItem")
     is_completed = models.BooleanField(default=False)
@@ -52,9 +55,10 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order ID: {self.id}"
-    
+
     def get_absolute_url(self):
         return reverse("orders:order_completed", kwargs={"order_id": self.id})
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")

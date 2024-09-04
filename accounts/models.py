@@ -91,11 +91,21 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     about = models.TextField(null=True, blank=True)
 
     # social media links
-    website_link = models.URLField(null=True, blank=True, help_text="Input your Website URL.")
-    twitter_url = models.URLField(blank=True, null=True, help_text="Input your Twitter profile URL.")
-    facebook_url = models.URLField(blank=True, null=True, help_text=" Input your Facebook profile URL.")
-    linkedin_url = models.URLField(blank=True, null=True, help_text="Input your LinkedIn profile URL.")
-    youtube_url = models.URLField(blank=True, null=True, help_text="Input your Youtube profile URL.")
+    website_link = models.URLField(
+        null=True, blank=True, help_text="Input your Website URL."
+    )
+    twitter_url = models.URLField(
+        blank=True, null=True, help_text="Input your Twitter profile URL."
+    )
+    facebook_url = models.URLField(
+        blank=True, null=True, help_text=" Input your Facebook profile URL."
+    )
+    linkedin_url = models.URLField(
+        blank=True, null=True, help_text="Input your LinkedIn profile URL."
+    )
+    youtube_url = models.URLField(
+        blank=True, null=True, help_text="Input your Youtube profile URL."
+    )
 
     is_active = models.BooleanField(
         default=True,

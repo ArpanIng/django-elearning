@@ -83,12 +83,12 @@ class CheckoutView(LoginRequiredMixin, FormView):
                     return redirect(
                         reverse("orders:khalti_payment", kwargs={"order_id": order.id})
                     )
-                
+
                 order.order_status = Order.OrderStatus.COMPLETED
                 order.is_completed = True
                 order.save()
                 return redirect("orders:order_completed", order_id=order.id)
-        except Exception  as e:
+        except Exception as e:
             order.order_status = Order.OrderStatus.FAILED
             order.is_completed = False
             order.save()
@@ -144,7 +144,7 @@ def initiate_khalti_payment(request):
     }
 
     response = requests.request("POST", url, headers=headers, data=payload)
-    
+
     if response.status_code == 200:
         payment_url = response.json()["payment_url"]
         if payment_url:
@@ -160,6 +160,8 @@ def initiate_khalti_payment(request):
 NOTE:
 Not implemented, the created merchant account had 0 balance amount
 """
+
+
 @login_required
 def verify_khalti_payment(request):
     url = "https://a.khalti.com/api/v2/epayment/lookup/"
@@ -187,6 +189,7 @@ def verify_khalti_payment(request):
 
 class OrderCompletedView(LoginRequiredMixin, View):
     """"""
+
     template_name = "orders/order_completed.html"
 
     def get(self, request, order_id):
@@ -204,7 +207,7 @@ class OrderFailedView(LoginRequiredMixin, View):
         # Check if the logged-in user is the owner of the order
         if order.user != request.user:
             raise PermissionDenied
-        context= {"order": order}
+        context = {"order": order}
         return render(request, "orders/order_failed.html", context)
 
 

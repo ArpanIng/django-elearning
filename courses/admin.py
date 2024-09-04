@@ -1,15 +1,7 @@
 from django import forms
 from django.contrib import admin
 
-from .models import (
-    Category,
-    Course,
-    CourseRequirement,
-    Enrollment,
-    Lesson,
-    Module,
-    WhatYoullLearn,
-)
+from .models import Category, Course, Enrollment, Lesson, Module, CourseReview
 
 
 @admin.register(Category)
@@ -89,14 +81,6 @@ class SubCategoryFilter(admin.SimpleListFilter):
             return queryset.filter(subcategory__slug=self.value())
 
 
-class CourseRequirementInline(admin.StackedInline):
-    model = CourseRequirement
-
-
-class CourseWhatYoullLearnInline(admin.StackedInline):
-    model = WhatYoullLearn
-
-
 class ModuleInline(admin.StackedInline):
     model = Module
 
@@ -126,7 +110,7 @@ class CourseAdmin(admin.ModelAdmin):
     # raw_id_fields = ["instructor"]
     date_hierarchy = "publish"
     ordering = ["status", "-publish"]
-    inlines = [CourseRequirementInline, CourseWhatYoullLearnInline, ModuleInline]
+    inlines = [ModuleInline]
 
 
 class LessonInline(admin.StackedInline):
@@ -144,7 +128,11 @@ class LessionAdmin(admin.ModelAdmin):
     list_display = ["title"]
 
 
-# admin.site.register(Enrollment)
 @admin.register(Enrollment)
 class EnrollmentModelAdmin(admin.ModelAdmin):
-    list_display = ["student", "course", "enrollment_date", "is_completed"]
+    list_display = ["student", "course", "enrollment_date"]
+
+
+@admin.register(CourseReview)
+class CourseReviewModelForm(admin.ModelAdmin):
+    list_display = ["user", "course", "rating"]

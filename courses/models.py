@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Avg
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils import timezone
@@ -38,7 +39,9 @@ class Category(models.Model):
 
     def get_category_url(self):
         """return the URL of the category itself."""
-        return reverse("courses:courses_by_category", kwargs={"category_slug": self.slug})
+        return reverse(
+            "courses:courses_by_category", kwargs={"category_slug": self.slug}
+        )
 
     def get_subcategory_url(self):
         """return the URL of the category and subcategory."""
@@ -115,7 +118,9 @@ class Course(models.Model):
         default=False,
         help_text="Indicates whether the course provides a certificate upon completion.",
     )
-    level = models.CharField(max_length=4, choices=DifficultyLevel.choices, default=DifficultyLevel.BEGINNER)
+    level = models.CharField(
+        max_length=4, choices=DifficultyLevel.choices, default=DifficultyLevel.BEGINNER
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.RESTRICT,
@@ -135,6 +140,7 @@ class Course(models.Model):
         on_delete=models.CASCADE,
         related_name="courses",
     )
+    students = models.ManyToManyField(settings.AUTH_USER_MODEL, through="Enrollment")
     publish = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     objects = models.Manager()  # default Manager
@@ -165,6 +171,9 @@ class Course(models.Model):
     def get_remove_from_cart_url(self):
         return reverse("carts:remove_from_cart", kwargs={"course_slug": self.slug})
 
+    def is_free(self):
+        return self.price_status == Course.PriceStatus.FREE
+
     def has_discount(self):
         """helps determine whether a course has a discount or not"""
         return self.discount_price > 0.00 and self.discount_price < self.regular_price
@@ -172,13 +181,26 @@ class Course(models.Model):
     def get_current_price(self):
         return self.discount_price if self.has_discount() else self.regular_price
 
+    def get_reviews(self):
+        return self.reviews.all().prefetch_related("user")
+
+    def get_reviews_count(self):
+        return self.reviews.all().count()
+
+    def get_total_enrolled_students_count(self):
+        return self.students.count()
+
+    def get_average_ratings(self):
+        queryset = self.reviews.all()
+        return queryset.aggregate(average_rating=Avg("rating"))["average_rating"]
+
     @property
     def get_discount_percentage(self):
         if self.has_discount():
             discount_price = self.regular_price - self.discount_price
             discount_percentage = round((discount_price / self.regular_price) * 100)
             return discount_percentage
-        return 0  # Return 0 when the regular_price is 0 to avoid division by zero error    
+        return 0  # Return 0 when the regular_price is 0 to avoid division by zero error
 
     def clean(self):
         if self.price_status == self.PriceStatus.FREE:
@@ -186,53 +208,19 @@ class Course(models.Model):
             self.discount_price = 0.00
         elif self.price_status == self.PriceStatus.PAID:
             if self.regular_price <= 0.00:
-                raise ValidationError("Regular price must be set and greater than zero for paid courses.")
+                raise ValidationError(
+                    "Regular price must be set and greater than zero for paid courses."
+                )
             if self.discount_price > self.regular_price:
-                raise ValidationError("Discount price cannot be greater than the regular price.")
+                raise ValidationError(
+                    "Discount price cannot be greater than the regular price."
+                )
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
         self.full_clean()
         return super().save(*args, **kwargs)
-
-
-class CourseRequirement(models.Model):
-    """Model representing a requirement for a course."""
-
-    content = models.CharField(
-        max_length=500,
-        help_text="Enter any prerequisites or requirements for students before enrolling in the course.",
-    )
-    course = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name="requirements",
-        help_text="The course to which this requirement belongs.",
-    )
-
-    def __str__(self):
-        return self.content
-
-
-class WhatYoullLearn(models.Model):
-    """
-    Model representing topics or skills covered in a course/ What you'll learn section.
-    """
-
-    content = models.CharField(
-        max_length=255,
-        help_text="Enter the specific topic or skill covered in the course.",
-    )
-    course = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name="topics",
-        help_text="Select the course to which this topic belongs.",
-    )
-
-    def __str__(self):
-        return self.content
 
 
 class Module(models.Model):
@@ -291,12 +279,27 @@ class Enrollment(models.Model):
         related_name="enrollments",
     )
     enrollment_date = models.DateTimeField(default=timezone.now)
-    is_completed = models.BooleanField(default=False)
-    completion_date = models.DateTimeField(blank=True, null=True)
-    feedback = models.TextField(blank=True)
 
     class Meta:
         unique_together = ("student", "course")
 
     def __str__(self):
         return f"{self.student}: {self.course.title}"
+
+
+class CourseReview(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    content = models.TextField(max_length=1000)
+    reviewed_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user} on course {self.course} Rating: {self.rating}"

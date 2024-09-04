@@ -3,18 +3,19 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
+from django.views.generic import FormView
 from django.views.generic.base import TemplateView, View
-from django.views.generic.detail import DetailView
+from django.views.generic.detail import DetailView, SingleObjectMixin
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.list import ListView
 
 from carts.models import Cart
 
 from . import utils
-from .forms import CourseForm
+from .forms import CourseForm, CourseReviewForm
 from .models import Category, Course, Enrollment
 
 User = get_user_model()
@@ -73,7 +74,9 @@ class CourseListView(ListView):
 
         # for breadcrumb navigation
         # filters the current url category and it's childrens
-        category = Category.objects.filter(slug=category_slug, parent__isnull=True).prefetch_related("children")
+        category = Category.objects.filter(
+            slug=category_slug, parent__isnull=True
+        ).prefetch_related("children")
         # count courses accordingly to the returned queryset (by search, category, and subcategory)
         courses_count = queryset.count()
 
@@ -82,7 +85,9 @@ class CourseListView(ListView):
             category_slug = Category.objects.get(slug=category_slug)
             context["title"] = category_slug.title
             # FIX: the draft courses are also being counted
-            subcategories_with_course_count = Category.objects.filter(parent=category_slug).annotate(course_count=Count('subcategory_courses'))
+            subcategories_with_course_count = Category.objects.filter(
+                parent=category_slug
+            ).annotate(course_count=Count("subcategory_courses"))
             context["subcategories_with_course_count"] = subcategories_with_course_count
         if subcategory_slug:
             subcategory_slug = Category.objects.get(slug=subcategory_slug)
@@ -113,25 +118,72 @@ class CourseDetailView(DetailView):
         if obj.status == Course.Status.DRAFT:
             raise Http404("No course found matching the query.")
         return obj
-    
+
     def get_queryset(self):
         queryset = Course.published.all().select_related("instructor")
         return queryset
-    
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         course = self.object
+        instructor = course.instructor
+
         if user.is_authenticated:
-            context["is_enrolled"] = Enrollment.objects.filter(student=user, course=course).exists()
+            is_enrolled = Enrollment.objects.filter(
+                student=user, course=course
+            ).exists()
+            context["is_enrolled"] = is_enrolled
         cart = self.request.cart
         in_cart = cart.courses.filter(id=course.id).exists()
+
         context["in_cart"] = in_cart
         context["cart"] = cart
-            # context["in_cart"] = Cart
+        context["instructor"] = instructor
+        context["form"] = CourseReviewForm()
+        context["reviews"] = course.get_reviews()
+        # context["in_cart"] = Cart
+        context["average_rating"] = course.get_average_ratings()
+        context["total_reviews"] = course.get_reviews_count()
+        context["total_enrolled_students"] = course.get_total_enrolled_students_count()
         return context
-    
+
+
+class CourseReviewFormView(SingleObjectMixin, FormView):
+    model = Course
+    slug_field = "slug"
+    slug_url_kwarg = "course_slug"
+    form_class = CourseReviewForm
+    template_name = "courses/course_detail.html"
+
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            login_url = reverse("accounts:login")
+            redirect_url = f"{login_url}?next={request.path}"
+            return HttpResponseRedirect(redirect_url)
+        self.object = self.get_object()
+        return super().post(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        review = form.save(commit=False)
+        review.user = self.request.user
+        review.course = self.object
+        review.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        course = self.object
+        return course.get_absolute_url()
+
+
+class CourseView(View):
+    def get(self, request, *args, **kwargs):
+        view = CourseDetailView.as_view()
+        return view(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        view = CourseReviewFormView.as_view()
+        return view(request, *args, **kwargs)
 
 
 class CourseEditView(
@@ -170,6 +222,34 @@ class CourseDeleteView(
     def test_func(self):
         course = self.get_object()
         return course.instructor == self.request.user
+
+
+class CourseEnrollmentView(LoginRequiredMixin, View):
+    def get(self, request, course_slug):
+        course = get_object_or_404(Course, slug=course_slug)
+        return redirect(course.get_absolute_url())
+
+    def post(self, request, course_slug):
+        course = get_object_or_404(Course, slug=course_slug)
+        user = self.request.user
+
+        if Enrollment.objects.filter(student=user, course=course).exists():
+            messages.info(request, f'You are already enrolled in "{course.title}".')
+        else:
+            Enrollment.objects.create(student=user, course=course)
+            messages.success(
+                request, f'You have successfully enrolled in "{course.title}".'
+            )
+            return redirect(course.get_absolute_url())
+
+
+class CourseLessonView(View):
+    template_name = "courses/course_lesson.html"
+
+    def get(self, request, course_slug):
+        course = get_object_or_404(Course, slug=course_slug)
+        context = {"course": course}
+        return render(request, self.template_name, context)
 
 
 class AboutView(TemplateView):

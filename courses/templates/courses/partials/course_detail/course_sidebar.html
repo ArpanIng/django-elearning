@@ -40,11 +40,14 @@
 
         <!-- if a course if free, only display the enroll button -->
         {% if course.is_free %}
-        {{ is_enrolled }}
         {% if is_enrolled %}
-        <button class="btn btn-primary btn-block mb-6" type="button" name="button">Go to course</button>
+        <a href="{% url 'courses:course_lesson' course.slug %}" class="btn btn-primary btn-block mb-6" type="button" name="button">Go to course</a>
+        {% comment %} <button class="btn btn-primary btn-block mb-6" type="button" name="button">Go to course</button> {% endcomment %}
         {% else %}
-        <button class="btn btn-primary btn-block mb-6" type="button" name="button">ENROLL</button>
+        <form action="{{ course.get_enroll_url }}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary btn-block mb-6">ENROLL</button>
+        </form>
         {% endif %}
         <!-- course is not free -->
         {% else %}

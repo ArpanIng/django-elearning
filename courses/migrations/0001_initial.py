@@ -8,7 +8,6 @@ import django_ckeditor_5.fields
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [

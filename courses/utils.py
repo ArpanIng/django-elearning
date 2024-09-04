@@ -24,6 +24,7 @@ def filter_courses(request, kwargs, queryset):
 
     return queryset
 
+
 def get_course_counts_by_difficulty_level(queryset):
     """
     Return a list of tuples containing the difficulty level (value), its label, and the count of courses at that level.
@@ -50,7 +51,9 @@ def get_course_counts_by_price_status(queryset):
         queryset: A QuerySet of courses.
     """
 
-    course_counts = queryset.values("price_status").annotate(count=Count("price_status"))
+    course_counts = queryset.values("price_status").annotate(
+        count=Count("price_status")
+    )
     course_count_dict = {item["price_status"]: item["count"] for item in course_counts}
     statuses = [
         (status.value, status.label, course_count_dict.get(status.value, 0))

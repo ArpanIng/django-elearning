@@ -34,38 +34,20 @@
                 <div class="mb-4 mb-md-0 me-md-6 me-lg-4 me-xl-6">
                     <div class="d-lg-flex align-items-center">
                         <div class="font-size-sm ms-lg-3">
-                            <span>9.45 (9.8k+ reviews)</span>
+                            <span>{{ average_rating }}
+                                <a href="#">({{ total_reviews }} review{{ total_reviews|pluralize }})</a>
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4 mb-md-0 me-md-8 me-lg-4 me-xl-8">
-                    <a href="#" class="font-size-sm text-gray-800">1000 students</a>
+                    <span class="font-size-sm text-gray-800">{{ total_enrolled_students }} student{{ total_enrolled_students|pluralize }}</span>
                 </div>
             </div>
 
             <!-- COURSE INFO TAB -->
             <div class="mb-8">
-                <h3 class="mb-5">What you'll learn</h3>
-                <div class="row row-cols-lg-2 mb-8">
-                    <div class="col-md">
-                        <ul class="list-style-v1 list-unstyled">
-                            <li>Become a UI/UX designer.</li>
-                        </ul>
-                    </div>
-
-                    <div class="col-md">
-                        <ul class="list-style-v1 list-unstyled ms-xl-6">
-                            <li>Build & test a complete mobile app.</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <h3 class="mb-5">Requirements</h3>
-                <ul class="list-style-v2 list-unstyled">
-                    <li>We do not require any previous experience or pre-defined skills to take this course. A great orientation would be enough to master UI/UX design.</li>
-                </ul>
-
                 <h3 class="">Course Description</h3>
                 <p class="mb-6 line-height-md">Do you want to become a UI/UX designer but you don't know where to start? This course will allow you to develop your user interface design skills and you can add UI designer to your CV and start getting clients for your skills.</p>
                 <p class="mb-6 line-height-md">Hi everyone. I'm Arash and I'm a UI/UX designer. In this course, I will help you learn and master Figma app comprehensively from scratch. Figma is an innovative and brilliant tool for User Interface design. It's used by everyone from entrepreneurs and start-ups to Apple, Airbnb, Facebook, etc.</p>
@@ -102,10 +84,15 @@
 
             <div id="Reviews" class="mb-8">
                 <h3 class="mb-6">Student feedback</h3>
+                {% for review in reviews %}
                 <!-- course reviews -->
                 {% include 'courses/partials/course_detail/course_reviews.html' %}
                 <!-- course reviews end -->
+                {% empty %}
+                <p>No reviews yet.</p>
+                {% endfor %}
 
+                {% if is_enrolled %}
                 <div class="border shadow rounded p-6 p-md-9">
                     <h3 class="mb-2">Add Reviews & Rate</h3>
                     <div class="">What is it like to Course?</div>
@@ -113,6 +100,7 @@
                     {% include 'courses/partials/course_detail/course_review_form.html' %}
                     <!-- course review form end -->
                 </div>
+                {% endif %}
             </div>
         </div>
 
